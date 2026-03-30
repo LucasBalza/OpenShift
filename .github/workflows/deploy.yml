@@ -10,12 +10,18 @@ on:
       image_tag:
         description: 'Image tag à déployer'
         required: false
-        default: 'latest'
+        default: ''
 
+env:
+  REGISTRY: harbor.kakor.ovh/ipim2il/groupe-2
 
 jobs:
   build-and-push:
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
+
+    outputs:
+      image_tag: ${{ github.sha }}
 
     steps:
     - name: Checkout code
@@ -33,7 +39,7 @@ jobs:
       with:
         context: .
         push: true
-        tags: harbor.kakor.ovh/ipim2il/groupe-2:latest
+        tags: ${{ env.REGISTRY }}:${{ github.sha }}
 
   deploy:
     needs: build-and-push
@@ -45,7 +51,6 @@ jobs:
 
     - name: Install OpenShift CLI
       run: |
-        # Download and install OpenShift CLI
         curl -L -o /tmp/oc.tar.gz https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-linux.tar.gz
         tar xz -C /usr/local/bin -f /tmp/oc.tar.gz
         chmod +x /usr/local/bin/oc
@@ -53,11 +58,28 @@ jobs:
 
     - name: Login to OpenShift
       run: |
-        oc login --token=${{ secrets.OPENSHIFT_TOKEN }} --server=${{ secrets.OPENSHIFT_SERVER }} --insecure-skip-tls-verify
+        oc login --token=${{ secrets.OPENSHIFT_TOKEN }} \
+                 --server=${{ secrets.OPENSHIFT_SERVER }} \
+                 --insecure-skip-tls-verify
 
-    - name: Deploy to OpenShift
+    - name: Define image tag
+      id: vars
       run: |
-        oc apply -f flask-deployment.yaml
+        if [ "${{ github.event.inputs.image_tag }}" != "" ]; then
+          echo "IMAGE_TAG=${{ github.event.inputs.image_tag }}" >> $GITHUB_ENV
+        else
+          echo "IMAGE_TAG=${{ needs.build-and-push.outputs.image_tag }}" >> $GITHUB_ENV
+        fi
+
+    - name: Apply Kubernetes resources
+      run: |
+        oc apply -f flask-deployment.yaml -n project-gp-2
+
+    - name: Update image (force rollout)
+      run: |
+        oc set image deployment/lucas-deployment \
+          flask-container=${{ env.REGISTRY }}:${IMAGE_TAG} \
+          -n project-gp-2
 
     - name: Verify deployment
       run: |
