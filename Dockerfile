@@ -4,16 +4,16 @@ WORKDIR /app
 
 RUN useradd -ms /bin/bash pythonuser
 
-COPY /app/requirements.txt .
+COPY app/requirements.txt .
 
 RUN pip install -r requirements.txt
 
 COPY app/ .
 
-EXPOSE 5000
-
 USER pythonuser
 
 ENV FLASK_APP=/app/main.py
+
+EXPOSE 5000
 
 CMD ["flask", "run", "--host=0.0.0.0", "--port=5000"]
