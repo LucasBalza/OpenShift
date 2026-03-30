@@ -1,9 +1,9 @@
 name: Build and Deploy
 
+run-name: Build and Deploy to OpenShift
+
 on:
   push:
-    branches: [ main ]
-  pull_request:
     branches: [ main ]
   workflow_dispatch:
     inputs:
@@ -19,10 +19,10 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v5
 
     - name: Login to Harbor
-      uses: docker/login-action@v2
+      uses: docker/login-action@v4
       with:
         registry: harbor.kakor.ovh
         username: ${{ secrets.HARBOR_USERNAME }}
@@ -41,7 +41,7 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v5
 
     - name: Install OpenShift CLI
       run: |
