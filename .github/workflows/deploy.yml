@@ -1,0 +1,53 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Login to Harbor
+      uses: docker/login-action@v2
+      with:
+        registry: harbor.kakor.ovh
+        username: ${{ secrets.HARBOR_USERNAME }}
+        password: ${{ secrets.HARBOR_PASSWORD }}
+
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v4
+      with:
+        context: .
+        push: true
+        tags: harbor.kakor.ovh/ipim2il/groupe-2:latest
+
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Install OpenShift CLI
+      run: |
+        curl -L https://github.com/openshift/okd/releases/download/4.11.0-okd/openshift-client-linux-4.11.0-okd.tar.gz | tar xz -C /usr/local/bin
+
+    - name: Login to OpenShift
+      run: |
+        oc login --token=${{ secrets.OPENSHIFT_TOKEN }} --server=${{ secrets.OPENSHIFT_SERVER }}
+
+    - name: Deploy to OpenShift
+      run: |
+        oc apply -f flask-deployment.yaml
+
+    - name: Verify deployment
+      run: |
+        oc rollout status deployment/flask-app -n default
