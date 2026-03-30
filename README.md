@@ -30,4 +30,6 @@ Créez une table et vérifier qu'après suppression du pod, la donnée est persi
 Il faudra mettre en place deux étapes pour commencer sur votre déploiement :
 
 - Une étape pour build et push votre image (potentiellement découpé en deux)
+- $ docker build -t harbor.kakor.ovh/ipim2il/groupe-2-lucas:latest .
+- $ docker push harbor.kakor.ovh/ipim2il/groupe-2-lucas:latest
 - Une étape pour déployer (utilisez des fichiers yaml dans un dossier spécifique de votre repo)

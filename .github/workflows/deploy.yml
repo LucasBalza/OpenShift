@@ -51,3 +51,5 @@ jobs:
     - name: Verify deployment
       run: |
         oc rollout status deployment/flask-app -n default
+
+        
