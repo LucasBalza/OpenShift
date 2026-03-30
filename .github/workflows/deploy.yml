@@ -6,7 +6,12 @@ on:
   pull_request:
     branches: [ main ]
   workflow_dispatch:
-    
+    inputs:
+      image_tag:
+        description: 'Image tag à déployer'
+        required: false
+        default: 'latest'
+
 
 jobs:
   build-and-push:
