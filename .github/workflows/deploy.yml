@@ -61,4 +61,4 @@ jobs:
 
     - name: Verify deployment
       run: |
-        oc rollout status deployment/lucas-deployment -n default
+        oc rollout status deployment/lucas-deployment -n project-gp-2
