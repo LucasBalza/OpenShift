@@ -18,7 +18,7 @@ spec:
       - name: flask-container
         securityContext:
           allowPrivilegeEscalation: true
-        image: harbor.kakor.ovh/ipi/lucas:latest
+        image: harbor.kakor.ovh/ipim2il/groupe-2-lucas:latest
         ports:
         - containerPort: 5000
 ---
