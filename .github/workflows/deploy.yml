@@ -5,6 +5,8 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+  workflow_dispatch:
+    
 
 jobs:
   build-and-push:
@@ -52,4 +54,3 @@ jobs:
       run: |
         oc rollout status deployment/flask-app -n default
 
-        
